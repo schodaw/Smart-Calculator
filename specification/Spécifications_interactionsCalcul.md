@@ -38,7 +38,8 @@ Compute Engine.
 
 Just an overview of the system architecture and the messages.
 
-[centerimg width=520 src="img/componentDiagram.png"/center][]
+[centerimg width=520
+src="img/componentDiagram.png"/center][]
 
 ### 3.2. System Components
 
@@ -163,8 +164,8 @@ transmitted in the header). Other specification documents are then
 written to use this extension point and to specify one or more different
 ways to actually handle the authentication in a system implementation.
 The HTTP specification follows this approach, with authentication
-mechanisms specified in [RFC
-2617][]<https://tools.ietf.org/html/rfc2617>.
+mechanisms specified in [RFC 2617][centerimg width=520
+src="img/componentDiagram.png"/center]<https://tools.ietf.org/html/rfc2617>.
 
 ## 5. Examples
 
@@ -189,7 +190,7 @@ to check that they have understood them correctly.
 specifications and/or to other documents. This is something that you
 should do in a specific section of your document.
 
-  [centerimg width=520 src="img/componentDiagram.png"/center]: centerimg width=520 src="img/componentDiagram.png"/center
-  [centerimg width=520 src="img/sequenceDiagram.png"/center]: centerimg width=520 src="img/sequenceDiagram.png"/center
-  [centerimg width=320 src="images/04/stateMachineDiagram.png"/center]: centerimg width=320 src="images/04/stateMachineDiagram.png"/center
-  [RFC 2617]: #
+  [centerimg width=520 src="img/componentDiagram.png"/center]: #
+  [centerimg%20width=520%20src="img/componentDiagram.png"/center]: centerimg%20width=520%20src="img/componentDiagram.png"/center
+  [centerimg width=520 src="img/sequenceDiagram.png"/center]: centerimg%20width=520%20src="img/sequenceDiagram.png"/center
+  [centerimg width=320 src="images/04/stateMachineDiagram.png"/center]: centerimg%20width=320%20src="images/04/stateMachineDiagram.png"/center
