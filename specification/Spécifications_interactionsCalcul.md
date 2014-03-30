@@ -1,12 +1,10 @@
-# Distributed Computing Protocol V1.0 Specification
+# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
 
-\`\`\` Author : Jollien Dominique, Saam Frédéric, HEIG-VD Last revision
-date : 27.03.2014
+    Author              : Dominique Jollien and Frédéric Saam, HEIG-VD
+    Last revision date  : 30.03.2014
 
-Revision history 22.03.2014 : did this 23.03.2014 : added that
-24.03.2014 : modified this
-
-\`\`\`
+    Revision history
+             30.03.2014 : Finalized the v1.0 specification
 
 ## 1. Introduction
 
@@ -17,6 +15,10 @@ perform distributed computing.
 The goal of such a distributed system is to allow clients to access
 computing servers and ask them for computation results.
 
+This document will describe the interactions between the servers able to
+provide computation and the clients once they have established a
+connection.
+
 ## 2. Terminology
 
 **Smart Calculator**: a client in our DCP specification. This client
@@ -24,7 +26,9 @@ connects to Compute Engine to ask them to perform computation.
 
 **Compute Engine**: a server in our DCP specification. This server
 recieve computation requests from clients and reply them with the
-result.
+result. A compute Engine can be public or private, if he is private the
+Smart Calculator connecting to him must possess a recognized account by
+him.
 
 **Compute Function**: a computation of which a Compute Engine is capable
 of. A Compute Function may require data input to be performed.
@@ -36,12 +40,12 @@ Compute Engine.
 
 ### 3.1. System Architecture
 
-Just an overview of the system architecture and the messages.
-
-[centerimg width=520
-src="img/componentDiagram.png"/center][]
+Just an overview of the system architecture and the messages between the
+components.
 
 ### 3.2. System Components
+
+![][]
 
 #### 3.2.1. Smart Calculator
 
@@ -63,96 +67,352 @@ to check the credentials given by clients.
 
 ### 3.3. Interactions Between Components
 
-\>Insert one or more **sequence diagrams** here, to show the high-level
-interactions between the components (request-replies, discovery, etc.).
-This is not the place to give all the details, but it should give the
-reader a general understanding of what is happening at runtime. For each
-sequence diagram, explain the reason for which the components are
-interacting with each other (i.e. state the purpose of the interaction).
-
-[centerimg width=520 src="img/sequenceDiagram.png"/center][]
+The overall interactions between components are shown on the diagram in
+chapter 3.1.
 
 ## 4. Protocol Details
 
-\>In this section, you should provide **all the information that is
-required for the readers to do a detailed design and an implementation
-of the software components** that will use your protocol to interact
-with each other. The readers should find a clear description of the
-communication patterns, the syntax and semantics of messages and of
-other rules defined by the protocol.
-
 ### 4.1. Transport Protocols and Connections
 
-\>In this paragraph, you should explain which protocols are used to
-transport application-level messages. You should define the standard
-port(s) (in the same way that HTTP defines 80 as the standard TCP port).
-You should also explain how the components start to interact with each
-other. If a connection is established, then how is it established and
-what is the procedure that needs to be implemented?
+The dynamic service discovery used by this protocol is described in the
+"Dynamic Discovery" specification document.
+
+Interactions between the Smart Calculator and the Compute Engine after
+the dynamic service discovery are done via TCP. The default listening
+port for Compute Engines is 6060.
+
+To establish a connection with a Compute Engine, after having
+dynamically discovered it, the Smart Calculator send him a
+CONNECTION\_REQUEST message.
+
+If the Compute Engine is private he follows the connection process with
+a LOGIN\_REQUIRED message.
+
+The Smart Calculator can then reply with a USER\_CREDENTIALS message and
+be logged in if the given credentials are recognize by the compute
+engine or he can ask for registration in the Compute Engine's user
+database with a REGISTRATION\_REQUEST message which will be replied by a
+REGISTRATION\_REPLY.
+
+He must then reply with a NEW\_USER\_CREDENTIALS to register himself
+which will be replied either by a REGISTRATION\_FAILURE or
+REGISTRATION\_SUCCESS.
+
+Once his account is created he can go back to logging in.
 
 ### 4.2. State Management
 
-\>In this paragraph, you should explain whether your protocol is
-stageful or stateless. If it is stageful, then you should describe all
-the states in which an application session can be, what events can
-happen in each of these states and what are the possible transitions
-between the states and what happens during these transitions.
+This protocol is stageful.
 
-\>Start by showing a state machine diagram, which will give an overview
-to the readers. Then provide a detailed description of each state.
+![][1]
 
-[centerimg width=320 src="images/04/stateMachineDiagram.png"/center][]
+#### 4.2.1. Initial state (listening for connection request)
 
-#### 4.2.1. State NAME\_OF\_THE\_STATE\_1
+In this state the Compute Engine is listening for CONNECTION\_REQUEST
+from the Smart Calculator.
 
-> In this paragraph, you should describe one particular state that
-> appears on the state machine diagram. You should explain what it means
-> for the conversation to be in this state. You should also explain what
-> events are expected to happen while the conversation is in this state
-> and what messages can be accepted from the other component. You should
-> describe what should happen when these events happen (transition to
-> another state, emission of a message, etc). Sometimes, you will
-> specify timing constraints in this part of the document. For example,
-> you could state that when the conversation enters a particular state,
-> then a timer is started and emits a signal after a given time. This
-> signal would be considered as a specific event, that might trigger a
-> transition to another state and other side effects (closing of a
-> connection, emission of a message, etc.).
+When he receives one, he reply with LOGIN\_REQUIRED and goes in the
+state Authentication if he is private but he replies with
+FUNCTIONS\_LIST and goes it the state Waiting\_computing\_request if he
+is public.
+
+#### 4.2.2. State Authentication
+
+Used if the Compute Engine is private and the user has to log in.
+
+In this state the Compute Engine can receive from the Smart Calculator :
+
+-   USER\_CREDENTIALS in which case he check the credentials and replies
+    with LOGIN\_FAILURE or send FUNCTIONS\_LIST and goes in the state
+    Waiting\_computing\_request.
+
+-   REGISTRATION\_REQUEST in which case he reply with
+    REGISTRATION\_REPLY and goes in the state REGISTRATION.
+
+#### 4.2.3. State Registration
+
+Used if the Compute Engine is private and the user wants to create a new
+account.
+
+In this state the Compute Engine can receive from the Smart Calculator :
+
+-   NEW\_USER\_CREDENTIALS in which case he tries to create a new
+    account with the credentials and replies with REGISTRATION\_FAILURE
+    or REGISTRATION\_SUCCESS.
+
+-   CONNECTION\_REQUEST in which case he reply with LOGIN\_REQUIRED and
+    goes in the state Authentication.
+
+#### 4.2.4. State Waiting\_computing\_request
+
+Used if a Smart Calculator is connected of the Compute Engine and no
+task is currently performing.
+
+In this state the Compute Engine can receive from the Smart Calculator :
+
+-   COMPUTING\_REQUEST in which case he replies with UNKOWN\_FUNCTION if
+    the name of the computing function asked is wrong otherwise he goes
+    in the state compute\_request.
+
+-   BYE in which case he closes the connection.
+
+#### 4.2.5. State compute\_request
+
+Used if a Compute Engine is processing inputs for a requested compute
+function.
+
+In this state the Compute Engine can send to the Smart Calculator :
+
+-   INPUTS\_REQUEST in which case he goes in the state Waiting\_inputs.
+
+-   LIST\_INPUTS\_REQUEST in which case he goes in the state
+    Waiting\_list\_inputs.
+
+-   COMPUTING\_RESULT in which case he goes in the state
+    Waiting\_computing\_request.
+
+-   COMPUTING\_FAILURE in which case he goes in the state
+    Waiting\_computing\_request.
+
+#### 4.2.6. State Waiting\_inputs
+
+Used if a Compute Enging is asking for a certain number of inputs for a
+requested compute function.
+
+In this state the Compute Engine can receive from the Smart Calculator :
+
+-   INPUTS\_REPLY in which case he goes in the state compute\_request.
+
+#### 4.2.7. State Waiting\_list\_inputs
+
+Used if a Compute Enging is asking for an unknown number of inputs for a
+requested compute function.
+
+In this state the Compute Engine can receive from the Smart Calculator :
+
+-   LIST\_INPUTS\_REPLY in which case he store an additional input.
+
+-   LIST\_INPUTS\_ENDOFREPLY in which case he goes in the state
+    compute\_result.
 
 ### 4.3. Message Types, Syntax and Semantics
 
-\>In this section, you should describe in details what messages are
-exchanged by system components, how they are structured and encoded,
-when they should be sent and what should happen when they are received.
+All the messages are encoded in JSON.
 
-> It is a good idea to write one paragraph for each type of message.
-> Very often, you will also want to document some decisions that are
-> valid for all messages. For example, you could state that all messages
-> are encoded in JSON or in XML. Or, if you are using a grammar in your
-> specification, you could state what kind of grammar it is and document
-> the high-level production rules. Also, many protocol define a common
-> structure for several message types, often involving the separation
-> between an envelope (with headers) and a payload. This structure and
-> the role of the headers may then be specified in an additional section
-> that would be added here.
+#### 4.3.1 Connection
 
-#### 4.3.1. Message MESSAGE\_TYPE\_1
+Connection between a Smart Calculator and a Compute Engine.
 
-\>In this paragraph, you should provide all the details for one
-particular type of messages. You will therefore have one such paragraph
-for every type defined in your protocol.
+##### 4.3.1.1 Message CONNECTION\_REQUEST
 
-### 4.4. Miscellaneous Considerations
+Sent by a Smart Calculator to a Compute Engine on it's listening port.
+Asks for a connection with the Compute Engine. If he is public the
+message is simply replied by FUNCTIONS\_LIST otherwise it's replied by
+LOGIN\_REQUIRED.
 
-> Depending on the actual system and protocol, you will need to address
-> additional issues and specify various elements. Typical topics that
-> are covered in protocol specifications include reliability, caching,
-> scalability, content negotiation, encoding formats and others. You
-> will have to adapt this part of the template to describe what is
-> relevant to your own situation. If you have many questions to answer,
-> then you will most likely split this section into multiple sections.
+Payload : {"MESSAGE\_TYPE" : "CONNECTION\_REQUEST"}
 
-### 4.5. Security Considerations
+##### 4.3.1.2 Message LOGIN\_REQUIRED
+
+Sent by a private Compute Engine to a Smart Calculator that sent
+CONNECTION\_REQUEST. Asks the Smart Calculator for a user id and
+password.
+
+Payload : {"MESSAGE\_TYPE" : "LOGIN\_REQUIRED"}
+
+##### 4.3.1.3 Message USER\_CREDENTIALS
+
+Sent by a Smart Calculator to a private Compute Engine that sent
+LOGIN\_REQUIRED. Provide user credentials that must be known by the
+Compute Engine to successfully log in the user. The user password is
+hashed in !!! TODO !!!
+
+Payload : {"MESSAGE\_TYPE" : "USER\_CREDENTIALS", "USER\_ID" : "the user
+id provided", "USER\_PASSWORD" : "the user password provided"}
+
+#### 4.3.1.4 Message LOGIN\_FAILURE
+
+Sent by a private Compute Engine to a Smart Calculator that sent
+USER\_CREDENTIALS.
+
+Inform the Smart Calculator he is not logged in. The reasons are given
+in the EXPLANATIONS field.
+
+Payload : {"MESSAGE\_TYPE" : "LOGIN\_FAILURE", "EXPLANATIONS" :
+"explanations of the reasons of the failure"}
+
+##### 4.3.1.5 Message REGISTRATION\_REQUEST
+
+Sent by a Smart Calculatorto a private Compute Engine that sent
+LOGIN\_REQUIRED. Ask the Compute Engine for registration of a new user
+in his user database.
+
+Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_REQUEST"}
+
+##### 4.3.1.6 Message REGISTRATION\_REPLY
+
+Sent by a private Compute Engine to a Smart Calculator that sent
+REGISTRATION\_REQUEST. Asks the Smart Calculator for a user id, a
+password and an email.
+
+Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_REPLY"}
+
+##### 4.3.1.7 Message NEW\_USER\_CREDENTIALS
+
+Sent by a Smart Calculator to a private Compute Engine that sent
+REGISTRATION\_REPLY. Provide new user credentials to let the Compute
+Engine create a new user account. The user password is hashed in !!!
+TODO !!!
+
+Payload : {"MESSAGE\_TYPE" : "NEW\_USER\_CREDENTIALS", "USER\_ID" : "the
+user id provided", "USER\_PASSWORD" : "the user password provided",
+"USER\_EMAIL" : "the user email provided"}
+
+##### 4.3.1.8 Message REGISTRATION\_SUCCESS
+
+Sent by a private Compute Engine to a Smart Calculator that sent
+NEW\_USER\_CREDENTIALS. Inform the Smart Calculator that his new account
+has been created and he can use it to log himself in this Compute
+Engine.
+
+Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_SUCCESS"}
+
+##### 4.3.1.9 Message REGISTRATION\_FAILURE
+
+Sent by a private Compute Engine to a Smart Calculator that sent
+NEW\_USER\_CREDENTIALS. Inform the Smart Calculator that his new account
+has not been created. The reasons are given in the EXPLANATIONS field.
+
+Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_FAILURE", "EXPLANATIONS" :
+"explanations of the reasons of the failure"}
+
+#### 4.3.1.10 Message BYE
+
+Sent by a Smart Calculator to a private Compute Engine after a
+successfull authentication. Log out of the Smart Calculator on the
+Compute Engine.
+
+Payload : {"MESSAGE\_TYPE" : "BYE"}
+
+#### 4.3.2 Computing
+
+Computing requests and replies between a Smart Calculator and a Compute
+Engine after a successful connection.
+
+#### 4.3.2.1 FUNCTIONS\_LIST
+
+Sent by a Compute Engine to a Smart Calculator that successfully
+connected (by simply sending a CONNECTION\_REQUEST if the Compute Engine
+is public or by going through the logging process). Inform the Smart
+Calculator of the computing functions the Compute Engine is capable.
+
+Payload : {"MESSAGE\_TYPE" : "FUNCTIONS\_LIST",
+
+"FUNCTIONS" : {
+
+"the name of a computing function" : "description of the computing
+function",
+
+"the name of another computing function" : "description of the computing
+function",
+
+...
+
+}}
+
+#### 4.3.2.2 COMPUTING\_REQUEST
+
+Sent by a Smart Calculato to a Compute Engine that sent FUNCTIONS\_LIST.
+Ask the Compute Engine to perform a computing function he is capable of.
+
+Payload : {"MESSAGE\_TYPE" : "COMPUTING\_REQUEST","FUNCTIONS" : "the
+name of a computing function"}
+
+#### 4.3.2.3 UNKOWN\_FUNCTION
+
+Sent by a Compute Engine to a Smart Calculator that sent
+COMPUTING\_REQUEST with an unrecognised computing function name.
+
+Payload : {"MESSAGE\_TYPE" : "COMPUTING\_REQUEST","FUNCTIONS" : "the
+name of a computing function"}
+
+#### 4.3.2.4 INPUTS\_REQUEST
+
+Sent by a Compute Engine to a Smart Calculator that sent
+COMPUTING\_REQUEST if the computing function that is requested requires
+a certain number of input.
+
+Payload : {"MESSAGE\_TYPE" : "INPUTS\_REQUEST",
+
+"INPUTS" : {"the name of a required input", "the name of another
+required input", ...}
+
+}
+
+#### 4.3.2.5 INPUTS\_REPLY
+
+Sent by a Smart Calculator to a Compute Engine to that sent
+INPUTS\_REQUEST. Provide a value for each required input.
+
+Payload : {"MESSAGE\_TYPE" : "INPUTS\_REPLY",
+
+"INPUTS" : {
+
+"the name of a required input" : "the value of the input",
+
+"the name of another required input" : "the value of the input",
+
+...
+
+}}
+
+#### 4.3.2.6 LIST\_INPUTS\_REQUEST
+
+Sent by a Compute Engine to a Smart Calculator that sent
+COMPUTING\_REQUEST if the computing function that is requested requires
+an unkown number of input.
+
+Payload : {"MESSAGE\_TYPE" : "LIST\_INPUTS\_REQUEST"}
+
+#### 4.3.2.7 LIST\_INPUTS\_REPLY
+
+Sent by a Smart Calculator to a Compute Engine to that sent
+LIST\_INPUTS\_REQUEST. Provide a value an input.
+
+Payload : {"MESSAGE\_TYPE" : "LIST\_INPUTS\_REPLY", "INPUT" : "the value
+of the input"}
+
+#### 4.3.2.8 LIST\_INPUTS\_ENDOFREPLY
+
+Sent by a Smart Calculator to a Compute Engine to that sent
+LIST\_INPUTS\_REQUEST. Inform the Compute Engine that all the inputs
+have been sent.
+
+Payload : {"MESSAGE\_TYPE" : "LIST\_INPUTS\_ENDOFREPLY"}
+
+#### 4.3.2.9 COMPUTING\_RESULT
+
+Sent by Compute Engine to a Smart Calculator that sent
+COMPUTING\_REQUEST and all the required inputs. Provide the result of
+the computing functions applied to the inputs provided by the Smart
+Calculator.
+
+Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "COMPUTING\_RESULT" :
+"the result of the computing function"}
+
+#### 4.3.2.10 COMPUTING\_FAILURE
+
+Sent by Compute Engine to a Smart Calculator that sent
+COMPUTING\_REQUEST and all the required inputs.
+
+Inform the Smart Calculator that the computing of the inputs with the
+requested computing function failed. The reasons are given in the
+EXPLANATIONS field.
+
+Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "EXPLANATIONS" :
+"explanations of the reasons of the failure"}
+
+### 4.4. Security Considerations
 
 \>In many protocol specifications, security aspects of the protocol are
 treated in a dedicated section. Sometimes, the authentication,
@@ -164,33 +424,19 @@ transmitted in the header). Other specification documents are then
 written to use this extension point and to specify one or more different
 ways to actually handle the authentication in a system implementation.
 The HTTP specification follows this approach, with authentication
-mechanisms specified in [RFC 2617][centerimg width=520
-src="img/componentDiagram.png"/center]<https://tools.ietf.org/html/rfc2617>.
+mechanisms specified in [RFC
+2617][]<https://tools.ietf.org/html/rfc2617>.
 
 ## 5. Examples
 
-\>In this section, you should **give examples of interactions between
-the components** of the distributed system. In previous sections, you
-have specified detailed rules (messaging patterns, session states,
-message syntax and semantics, etc.). Developers will use these detailed
-specifications when they implement your protocol.
-
-\>But by providing examples in the document, **you will help them in two
-ways**. Firstly, it will be **easier for them to understand what your
-protocol does and how**. Analyzing at a concrete dialog between a client
-and a server is often easier than directly digging into a more abstract
-definition. Secondly, it will allow them to **confirm their
-understanding of the protocol specification**. After reading the
-different rules specified in the previous sections, they will have a way
-to check that they have understood them correctly.
+![][2]
 
 ## 6. References
 
-\>Very often, you will provide references to other protocol
-specifications and/or to other documents. This is something that you
-should do in a specific section of your document.
+-   "Distributed Computing Protocol V1.0 Specification : Dynamic
+    dicovery" by Simone Righitto and Anthony Roubaty
 
-  [centerimg width=520 src="img/componentDiagram.png"/center]: #
-  [centerimg%20width=520%20src="img/componentDiagram.png"/center]: centerimg%20width=520%20src="img/componentDiagram.png"/center
-  [centerimg width=520 src="img/sequenceDiagram.png"/center]: centerimg%20width=520%20src="img/sequenceDiagram.png"/center
-  [centerimg width=320 src="images/04/stateMachineDiagram.png"/center]: centerimg%20width=320%20src="images/04/stateMachineDiagram.png"/center
+  []: img/componentDiagram.png
+  [1]: img/stateMachineDiagram.png
+  [RFC 2617]: #
+  [2]: img/sequeceDiagram.png
