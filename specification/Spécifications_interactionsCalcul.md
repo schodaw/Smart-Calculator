@@ -225,7 +225,7 @@ Payload : {"MESSAGE\_TYPE" : "LOGIN\_REQUIRED"}
 Sent by a Smart Calculator to a private Compute Engine that sent
 LOGIN\_REQUIRED. Provide user credentials that must be known by the
 Compute Engine to successfully log in the user. The user password is
-hashed in !!! TODO !!!
+hashed in MD5.
 
 Payload : {"MESSAGE\_TYPE" : "USER\_CREDENTIALS", "USER\_ID" : "the user
 id provided", "USER\_PASSWORD" : "the user password provided"}
@@ -261,8 +261,7 @@ Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_REPLY"}
 
 Sent by a Smart Calculator to a private Compute Engine that sent
 REGISTRATION\_REPLY. Provide new user credentials to let the Compute
-Engine create a new user account. The user password is hashed in !!!
-TODO !!!
+Engine create a new user account. The user password is hashed in MD5.
 
 Payload : {"MESSAGE\_TYPE" : "NEW\_USER\_CREDENTIALS", "USER\_ID" : "the
 user id provided", "USER\_PASSWORD" : "the user password provided",
@@ -414,7 +413,7 @@ Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "EXPLANATIONS" :
 
 ### 4.4. Security Considerations
 
-#### 4.4.1. Cryptographix hash function
+#### 4.4.1. Cryptographic hash function
 We have chosen to use the cryptographic hash function MD5 to stock 
 and verify the passwords.
 
