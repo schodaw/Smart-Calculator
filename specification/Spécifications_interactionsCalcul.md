@@ -1,4 +1,4 @@
-# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
+﻿# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
 
     Author              : Dominique Jollien and Frédéric Saam, HEIG-VD
     Last revision date  : 30.03.2014
@@ -414,18 +414,16 @@ Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "EXPLANATIONS" :
 
 ### 4.4. Security Considerations
 
-\>In many protocol specifications, security aspects of the protocol are
-treated in a dedicated section. Sometimes, the authentication,
-authorization, confidentiality rules are specified in the main protocol
-specification. Very often, however, the main protocol specification
-defines a generic mechanism (e.g. it states that requests should contain
-an authentication header, without fully specifying what should be
-transmitted in the header). Other specification documents are then
-written to use this extension point and to specify one or more different
-ways to actually handle the authentication in a system implementation.
-The HTTP specification follows this approach, with authentication
-mechanisms specified in [RFC
-2617][]<https://tools.ietf.org/html/rfc2617>.
+#### 4.4.1. Cryptographix hash function
+We have chosen to use the cryptographic hash function MD5 to stock 
+and verify the passwords.
+
+#### 4.4.2. Session
+After the authentication, a session ID is transfered to the client, he
+has to send it again with all the messages in a private session. If the
+session ID is not transfered, or if it is not the good one, the server
+will stop the connexion, send an error message, and the client will go
+back to the compute engine list.
 
 ## 5. Examples
 
