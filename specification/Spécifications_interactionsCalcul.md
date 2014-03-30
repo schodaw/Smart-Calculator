@@ -1,4 +1,4 @@
-﻿# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
+# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
 
     Author              : Dominique Jollien and Frédéric Saam, HEIG-VD
     Last revision date  : 30.03.2014
@@ -225,7 +225,7 @@ Payload : {"MESSAGE\_TYPE" : "LOGIN\_REQUIRED"}
 Sent by a Smart Calculator to a private Compute Engine that sent
 LOGIN\_REQUIRED. Provide user credentials that must be known by the
 Compute Engine to successfully log in the user. The user password is
-hashed in MD5.
+hashed in sha-256.
 
 Payload : {"MESSAGE\_TYPE" : "USER\_CREDENTIALS", "USER\_ID" : "the user
 id provided", "USER\_PASSWORD" : "the user password provided"}
@@ -261,7 +261,8 @@ Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_REPLY"}
 
 Sent by a Smart Calculator to a private Compute Engine that sent
 REGISTRATION\_REPLY. Provide new user credentials to let the Compute
-Engine create a new user account. The user password is hashed in MD5.
+Engine create a new user account. The user password is hashed in
+sha-256.
 
 Payload : {"MESSAGE\_TYPE" : "NEW\_USER\_CREDENTIALS", "USER\_ID" : "the
 user id provided", "USER\_PASSWORD" : "the user password provided",
@@ -289,7 +290,8 @@ Payload : {"MESSAGE\_TYPE" : "REGISTRATION\_FAILURE", "EXPLANATIONS" :
 
 Sent by a Smart Calculator to a private Compute Engine after a
 successfull authentication. Log out of the Smart Calculator on the
-Compute Engine.
+Compute Engine. Can also be send by the Compute Engine to the Smart
+Calculator to terminate the session.
 
 Payload : {"MESSAGE\_TYPE" : "BYE"}
 
@@ -414,15 +416,18 @@ Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "EXPLANATIONS" :
 ### 4.4. Security Considerations
 
 #### 4.4.1. Cryptographic hash function
-We have chosen to use the cryptographic hash function MD5 to stock 
+
+We have chosen to use the cryptographic hash function sha-256 to stock
 and verify the passwords.
 
 #### 4.4.2. Session
-After the authentication, a session ID is transfered to the client, he
-has to send it again with all the messages in a private session. If the
+
+On a private Compute Engine, after the authentication, a session ID is
+transfered to the client, he has to send it again with all the messages,
+in a SESSION\_ID parameter, before the MESSAGE\_TYPE parameter. If the
 session ID is not transfered, or if it is not the good one, the server
-will stop the connexion, send an error message, and the client will go
-back to the compute engine list.
+will stop the connexion, send a BYE, and the client will go back to the
+compute engine list.
 
 ## 5. Examples
 
@@ -435,5 +440,4 @@ back to the compute engine list.
 
   []: img/componentDiagram.png
   [1]: img/stateMachineDiagram.png
-  [RFC 2617]: #
   [2]: img/sequeceDiagram.png
