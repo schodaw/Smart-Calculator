@@ -1,4 +1,4 @@
-# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
+﻿# Distributed Computing Protocol V1.0 Specification : interactions after dynamic discovery
 
     Author              : Dominique Jollien and Frédéric Saam, HEIG-VD
     Last revision date  : 30.03.2014
@@ -420,14 +420,14 @@ Payload : {"MESSAGE\_TYPE" : "COMPUTING\_RESULT", "EXPLANATIONS" :
 We have chosen to use the cryptographic hash function sha-256 to stock
 and verify the passwords.
 
-#### 4.4.2. Session
+#### 4.4.2. Connexion to private compute engine
 
-On a private Compute Engine, after the authentication, a session ID is
-transfered to the client, he has to send it again with all the messages,
-in a SESSION\_ID parameter, before the MESSAGE\_TYPE parameter. If the
-session ID is not transfered, or if it is not the good one, the server
-will stop the connexion, send a BYE, and the client will go back to the
-compute engine list.
+There is no real "session" in this protocol, when the client tries to
+connect to a private engine, we hash the password and then we compare to
+the user\_id/hash in our database. If the comparison is correct, the server
+send the LOGIN\_SUCCESS message and then the functions. If the comparison
+is wrong, the server send a LOGIN\_FAIL message and ask again for the user's
+credentials.
 
 ## 5. Examples
 
