@@ -425,8 +425,8 @@ and verify the passwords.
 There is no real "session" in this protocol, when the client tries to
 connect to a private engine, we hash the password and then we compare to
 the user\_id/hash in our database. If the comparison is correct, the server
-send the LOGIN\_SUCCESS message and then the functions. If the comparison
-is wrong, the server send a LOGIN\_FAIL message and ask again for the user's
+send the available functions. If the comparison
+is wrong, the server send a LOGIN\_FAILURE message and ask again for the user's
 credentials.
 
 ## 5. Examples
