@@ -345,7 +345,7 @@ a certain number of input.
 
 Payload : {"MESSAGE\_TYPE" : "INPUTS\_REQUEST",
 
-"INPUTS" : {"the name of a required input", "the name of another
+"INPUTS" : {"1" : "the name of a required input", "2" : "the name of another
 required input", ...}
 
 }
