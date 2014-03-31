@@ -326,7 +326,7 @@ function",
 Sent by a Smart Calculato to a Compute Engine that sent FUNCTIONS\_LIST.
 Ask the Compute Engine to perform a computing function he is capable of.
 
-Payload : {"MESSAGE\_TYPE" : "COMPUTING\_REQUEST","FUNCTIONS" : "the
+Payload : {"MESSAGE\_TYPE" : "COMPUTING\_REQUEST","FUNCTION" : "the
 name of a computing function"}
 
 #### 4.3.2.3 UNKOWN\_FUNCTION
@@ -334,7 +334,7 @@ name of a computing function"}
 Sent by a Compute Engine to a Smart Calculator that sent
 COMPUTING\_REQUEST with an unrecognised computing function name.
 
-Payload : {"MESSAGE\_TYPE" : "COMPUTING\_REQUEST","FUNCTIONS" : "the
+Payload : {"MESSAGE\_TYPE" : "UNKOWN\_FUNCTION","FUNCTION" : "the
 name of a computing function"}
 
 #### 4.3.2.4 INPUTS\_REQUEST
