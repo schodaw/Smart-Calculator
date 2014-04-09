@@ -309,7 +309,7 @@ Calculator of the computing functions the Compute Engine is capable.
 
 Payload : {"MESSAGE\_TYPE" : "FUNCTIONS\_LIST",
 
-"FUNCTIONS" : {
+"FUNCTIONS" : [{
 
 "the name of a computing function" : "description of the computing
 function",
@@ -319,7 +319,7 @@ function",
 
 ...
 
-}}
+}]}
 
 #### 4.3.2.2 COMPUTING\_REQUEST
 
