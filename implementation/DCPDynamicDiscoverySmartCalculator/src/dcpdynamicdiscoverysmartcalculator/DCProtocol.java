@@ -17,6 +17,8 @@ public class DCProtocol {
 	public final static int DEFAULT_PORT = 6060;
         public final static int DEFAULT_LISTENING_PORT = 5050;
         
+        //structure d'un message HELLO : "HELLO"
         public final static String CMD_HELLO = "HELLO";
+        //structure d'un message HERE_I_AM : "HERE_I_AM":TCP port number
 	public final static String CMD_HERE_I_AM = "HERE_I_AM";
 }
