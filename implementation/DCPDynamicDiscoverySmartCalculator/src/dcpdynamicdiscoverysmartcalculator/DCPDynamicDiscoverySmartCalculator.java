@@ -66,6 +66,13 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
                             computeEnginesListeningPorts.push(Integer.valueOf(chunks[1]));
                          }
                          
+                         
+                         System.out.println("Liste des adresses stockées : ");
+                         for (int i = 0; i < computeEnginesAdresses.size(); i++) {
+                              System.out.println(computeEnginesAdresses.get(i) + ":" + computeEnginesListeningPorts.get(i));
+                         }
+                         
+                         
                  } catch (IOException ex) {
                          Logger.getLogger(DCPDynamicDiscoverySmartCalculator.class.getName()).log(Level.SEVERE, null, ex);
                  }
