@@ -23,22 +23,11 @@ public class DCProtocolSerialiser implements IProtocolSerializer {
    public Message deserialize(byte[] data) throws InvalidMessageException {      
       
       String sData = new String(data);
-   
-      JsonReader jsonReader = Json.createReader(new StringReader(sData));
-      JsonObject jsonObject = jsonReader.readObject();
-      
-      JsonArray jsonArray = jsonReader.readArray();
+      String[] tokens = sData.split(" : ");
       List<String> arguments = new LinkedList<>();
-      boolean firstToken = true;
-      for(JsonValue value : jsonArray){
-         if(firstToken) {
-            firstToken = false;
-         } else {
-            arguments.add(value.toString());
-         }
+      for (int i=1; i<tokens.length; i++) {
+              arguments.add(tokens[i]);
       }
-              
-      jsonReader.close();
       
       Message message = new Message(DCProtocol.MessageType.MESSAGE_TYPE_COMMAND);
       message.setAttribute("command", jsonObject.getString("MESSAGE_TYPE"));

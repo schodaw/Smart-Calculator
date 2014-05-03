@@ -19,6 +19,7 @@ public class DCProtocol {
 	 * The default TCP port on which the server is accepting connection requests
 	 */
 	public final static int DEFAULT_PORT = 6060;
+        public final static int DEFAULT_LISTENING_PORT = 5050;
 
 	/**
 	 * This enum type defines the possible states for the Dynamic Computing prococol
@@ -26,13 +27,8 @@ public class DCProtocol {
 	 */
 	public enum State implements IState {
 		STATE_START,
-                STATE_AUTHENTICATION,
-                STATE_REGISTRATION,
-		STATE_WAITING_COMPUTING_REQUEST, 
-		STATE_COMPUTE_REQUEST, 
-		STATE_WAITING_LIST_INPUTS,
-                STATE_WAITING_INPUTS,
-                STATE_END;
+                STATE_LISTENING,
+                STATE_RESPONDING;
 	}
 	
 	/**
@@ -49,16 +45,8 @@ public class DCProtocol {
 	 * The commands are encapsulated in messages
 	 */
 	public enum Command {
-		CMD_CONNECTION("CONNECTION_REQUEST", "Ask for connection to the Compute Engine."),
-                CMD_LOGIN("USER_CREDENTIALS","Ask for login to the Compute Engine."),
-		CMD_REGISTER("REGISTRATION_REQUEST", "Ask for registration of a new user to the Compute Engine."),
-                CMD_REGISTER_VALUE("NEW_USER_CREDENTIALS", "Give the credentials for a new user to be registered to the Compute Engine."),
-		CMD_COMPUTING_REQUEST("COMPUTING_REQUEST", "Ask for the specified computing request."),
-                CMD_INPUT_REPLY("INPUT_REPLY", "Give an input value."),
-                CMD_LIST_INPUT_REPLY("LIST_INPUT_REPLY", "Give an input value."),
-                CMD_LIST_INPUT_ENDOFREPLY("LIST_INPUT_ENDOFREPLY", "Terminate the list of input values."),
-		CMD_BYE("bye", "Close the session."),
-		CMD_HELP("help", "Display help message.");
+		CMD_HELLO("HELLO","Announce a smart-calculator"),
+                CMD_HERE_I_AM("HERE_I_AM","Announce a compute-engine");
 		
 		private final String keyword;
 		private final String help;
