@@ -309,7 +309,7 @@ Calculator of the computing functions the Compute Engine is capable.
 
 Payload : {"MESSAGE\_TYPE" : "FUNCTIONS\_LIST",
 
-"FUNCTIONS" : {
+"FUNCTIONS" : [{
 
 "the name of a computing function" : "description of the computing
 function",
@@ -319,7 +319,7 @@ function",
 
 ...
 
-}}
+}]}
 
 #### 4.3.2.2 COMPUTING\_REQUEST
 
@@ -345,8 +345,8 @@ a certain number of input.
 
 Payload : {"MESSAGE\_TYPE" : "INPUTS\_REQUEST",
 
-"INPUTS" : {"1" : "the name of a required input", "2" : "the name of another
-required input", ...}
+"INPUTS" : ["the name of a required input", "the name of another
+required input", ...]
 
 }
 
@@ -357,7 +357,7 @@ INPUTS\_REQUEST. Provide a value for each required input.
 
 Payload : {"MESSAGE\_TYPE" : "INPUTS\_REPLY",
 
-"INPUTS" : {
+"INPUTS" : [{
 
 "the name of a required input" : "the value of the input",
 
@@ -365,7 +365,7 @@ Payload : {"MESSAGE\_TYPE" : "INPUTS\_REPLY",
 
 ...
 
-}}
+}]}
 
 #### 4.3.2.6 LIST\_INPUTS\_REQUEST
 
