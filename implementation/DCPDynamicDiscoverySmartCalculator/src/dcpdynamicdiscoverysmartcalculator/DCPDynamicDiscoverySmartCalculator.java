@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,17 +25,18 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
       computeEnginesListeningPorts = new LinkedList<Integer>();
    }
    
-   public void start() {
+   public void startUP() {
       /*
        * Announcing the Smart Calculator with a broadcasted HELLO
        */
        try {
-         DatagramSocket announcementSocket = new DatagramSocket();
+         DatagramSocket announcementSocket = new DatagramSocket(DCProtocol.DEFAULT_CLIENT_DISCOVERY_PORT);
          announcementSocket.setBroadcast(true);
          
          byte[] payload = (DCProtocol.CMD_HELLO).getBytes();
-         DatagramPacket datagram = new DatagramPacket(payload, payload.length, InetAddress.getByName("255.255.255.255"), DCProtocol.DEFAULT_LISTENING_PORT);
+         DatagramPacket datagram = new DatagramPacket(payload, payload.length, InetAddress.getByName("255.255.255.255"), DCProtocol.DEFAULT_SERVER_DISCOVERY_PORT);
          announcementSocket.send(datagram);
+         announcementSocket.close();
       } catch (IOException ex) {
          Logger.getLogger(DCPDynamicDiscoverySmartCalculator.class.getName()).log(Level.SEVERE, null, ex);
       }
@@ -42,7 +44,7 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
       /*
        * Launching the listening thread
        */
-      new Thread(this);
+      new Thread(this).start();
    }
    
    /*
@@ -51,7 +53,8 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
    @Override
    public void run() {
       try {
-         DatagramSocket listeningSocket = new DatagramSocket(DCProtocol.DEFAULT_LISTENING_PORT);
+         DatagramSocket listeningSocket = new DatagramSocket(DCProtocol.DEFAULT_CLIENT_DISCOVERY_PORT);
+         System.out.println("client listen : " + listeningSocket.getLocalAddress());
          while (true) {
                  byte[] buffer = new byte[2048];
                  DatagramPacket datagram = new DatagramPacket(buffer, buffer.length);
@@ -64,12 +67,11 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
                             String[] chunks = msg.split(":");
                             computeEnginesAdresses.push(datagram.getAddress());
                             computeEnginesListeningPorts.push(Integer.valueOf(chunks[1]));
-                         }
-                         
-                         
-                         System.out.println("Liste des adresses stockées : ");
-                         for (int i = 0; i < computeEnginesAdresses.size(); i++) {
-                              System.out.println(computeEnginesAdresses.get(i) + ":" + computeEnginesListeningPorts.get(i));
+                            
+                            System.out.println("Liste des adresses stockées : ");
+                            for (int i = 0; i < computeEnginesAdresses.size(); i++) {
+                                System.out.println(computeEnginesAdresses.get(i) + ":" + computeEnginesListeningPorts.get(i));
+                            }
                          }
                          
                          
@@ -84,6 +86,6 @@ public class DCPDynamicDiscoverySmartCalculator implements Runnable {
    
    public static void main(String[] args) {
       DCPDynamicDiscoverySmartCalculator smartCalculator = new DCPDynamicDiscoverySmartCalculator();
-      smartCalculator.start();
+      smartCalculator.startUP();
    }
 }
